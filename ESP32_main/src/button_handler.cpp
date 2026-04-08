@@ -1,0 +1,47 @@
+#include "button_handler.h"
+
+/*#############################################################################################################*/
+/**
+ * @brief Initialize GPIO pins for buttons and analog inputs
+ */
+/*#############################################################################################################*/
+void button_and_valve_init()
+{
+    pinMode(MODE_SWITCH_PIN, INPUT_PULLUP);
+    pinMode(TRANS_PIN, INPUT_PULLUP);
+    pinMode(VALVE_PIN, INPUT);
+    pinMode(MODE_PIN, INPUT);
+}
+
+/*#############################################################################################################*/
+/**
+ * @brief Check if system is in training mode
+ * @return true if in training mode
+ */
+/*#############################################################################################################*/
+
+// Ham check nut 2 co dang bat khong
+// Nut 2 la nut chuyen doi giữa Training Mode <-> Reality Mode
+bool is_sw2_on()
+{
+    return !digitalRead(MODE_SWITCH_PIN);
+}
+
+/*#############################################################################################################*/
+/**
+ * @brief Get send enable button state
+ * @return true if send is enabled
+ */
+/*#############################################################################################################*/
+
+bool is_sw1_on()
+{
+    return !digitalRead(TRANS_PIN);
+}
+
+/*#############################################################################################################*/
+/**
+ * @brief Get valve status from analog input
+ * @return true if valve value above threshold
+ */
+/*#############################################################################################################*/
