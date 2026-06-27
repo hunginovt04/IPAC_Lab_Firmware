@@ -1,11 +1,21 @@
 #include "ble_handle.h"
 
 // Dia chi Mac 4 beacon
+//d4:e9:f4:f9:57:46
+//a4:f0:0f:64:b7:92
+//b0:cb:d8:c8:29:7a
+//b0:cb:d8:c8:3e:06
+
+// C8:2E:18:67:7E:DA    Number 1
+// 80:F3:DA:AD:7A:7E    Number 2
+// 80:F3:DA:62:07:16    Number 3
+// 80:F3:DA:62:C9:4A    Number 4
+
 static const uint8_t BLE_TARGET_BEACON[4][6] = {
-    {0xC8, 0x2E, 0x18, 0x67, 0x7E, 0xDA},
-    {0x80, 0xF3, 0xDA, 0xAD, 0x7A, 0x7E},
-    {0x80, 0xF3, 0xDA, 0x62, 0x07, 0x16},
-    {0x80, 0xF3, 0xDA, 0x62, 0xC9, 0x4A},
+    {0xD4, 0xE9, 0xF4, 0xF9, 0x57, 0x46},
+    {0xA4, 0xF0, 0x0F, 0x64, 0xB7, 0x92},
+    {0xB0, 0xCB, 0xD8, 0xC8, 0x29, 0x7A},
+    {0xB0, 0xCB, 0xD8, 0xC8, 0x3E, 0x06},
 };
 
 // Bien dem so luong RSSI Scan duoc
@@ -114,7 +124,7 @@ void ble_rssi_scan_callback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t
 
                     // Gui uart
                     uart_write_bytes(UART_PORT, buffer, strlen(buffer));
-                    printf("%d %d\n",i+1,rssi);
+                    //printf("%d %d\n",i+1,rssi);
                 }
             }
         }

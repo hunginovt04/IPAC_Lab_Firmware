@@ -1,5 +1,5 @@
-#ifndef READ_VALVE_DATA_H
-#define READ_VALVE_DATA_H
+#ifndef READ_VALVE_H
+#define READ_VALVE_H
 
 #include "config.h"
 
@@ -13,6 +13,8 @@
  *
  * @param valve_open_status Pointer to store the valve opening percentage
  */
-void read_valve_open_status(int* valve_open_status, bool* mode_status);
+void init_valve(void);
+void read_valve_open_status(int* valve_open_status, int* mode_status);
+void read_valve_mode(void);
 
 #endif

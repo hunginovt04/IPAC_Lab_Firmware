@@ -43,7 +43,7 @@ void send_data(int id, int rssi)
 {
   char buffer[50];
   sprintf(buffer, "%d %d\n", id, rssi);
-  Serial.print(buffer);
+  //Serial.print(buffer);
   Serial2.println(buffer);
 }
 
@@ -79,10 +79,10 @@ void loop()
   }
 
   // Ham in ra so luong RSSI scan duoc moi 1s
-  if (millis() - lasttime > 1000)
-  {
-    Serial.printf("So luong RSSI trong 1s: %d\n", rssi_count);
-    rssi_count = 0;
-    lasttime = millis();
-  }
+  // if (millis() - lasttime > 1000)
+  // {
+  //   Serial.printf("So luong RSSI trong 1s: %d\n", rssi_count);
+  //   rssi_count = 0;
+  //   lasttime = millis();
+  // }
 }

@@ -11,6 +11,10 @@
 #include <PubSubClient.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
+#include <ArduinoJson.h>
+
+// #include "apps/app_setup.h"
+// #include "apps/app_loop.h"
 
 // Device ID and mode of system
 /*#############################################################################################################*/
@@ -33,43 +37,43 @@ enum ModeSystem
 // #define REALITY_MODE 2  // Reality mode (Sending data and valve/mode of extinguish status)
 
 // Link youtube for turtorial
-#define YOUTUBE_LINK "https://www.youtube.com/watch?v=uHgt8giw1LY"
+#define YOUTUBE_LINK "https://youtu.be/BHWp2Lj1LJE"
 
 // QR code
 /*To convert QR code to array in C++, run "C:\Users\Admin\Project\other\qr_code_to_cpp_byte.py"
 with link of .png QR code file and copy the output to here*/
 #define QR_SIZE 31
-const uint8_t TUTORIAL_QR[QR_SIZE][QR_SIZE] = {
+const uint8_t DEMO_QR[QR_SIZE][QR_SIZE] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0},
-    {0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0},
-    {0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0},
-    {0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0},
-    {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0},
-    {0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0},
-    {0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0},
-    {0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0},
-    {0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0},
-    {0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0},
-    {0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0},
-    {0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0},
-    {0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0},
-    {0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0},
-    {0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0},
-    {0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0},
-    {0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0},
+    {0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+    {0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0},
+    {0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0},
+    {0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0},
+    {0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0},
+    {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0},
+    {0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0},
+    {0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0},
+    {0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
@@ -78,7 +82,7 @@ const uint8_t TUTORIAL_QR[QR_SIZE][QR_SIZE] = {
 
 // Serial Monitor Settings
 #define BAUD_RATE_SERIAL 115200 // Serial monitor baud rate (bps)
-#define DEBUG_INTERVAL 100      // Debug print interval (ms)
+#define DEBUG_INTERVAL 1000     // Debug print interval (ms)
 
 /*#############################################################################################################*/
 
@@ -105,9 +109,10 @@ const uint8_t TUTORIAL_QR[QR_SIZE][QR_SIZE] = {
 /*#############################################################################################################*/
 
 // BNO055 I2C Configuration
-#define I2C_SDA 21          // Default SDA pin for ESP32
-#define I2C_SCL 22          // Default SCL pin for ESP32
-#define BNO055_ADDRESS 0x28 // Default I2C address for BNO055
+#define I2C_SDA 21             // Default SDA pin for ESP32
+#define I2C_SCL 22             // Default SCL pin for ESP32
+#define BNO055_EX_ADDRESS 0x28 // Default I2C address for BNO055
+#define BNO055_IN_ADDRESS 0x29 // Alternative I2C address for BNO055 (if ADR pin is high)
 
 // BNO055 Register Addresses
 #define ACC_DATA_START 0x28        // Accelerometer data registers 0x08-0x0D
@@ -165,8 +170,8 @@ const uint8_t TUTORIAL_QR[QR_SIZE][QR_SIZE] = {
 #define TRANS_PIN 33       // Chuyen doi tu default sang hai che do con lai
 
 // Analog Input Pins
-#define VALVE_PIN 34 // Valve control analog input in reality mode
-#define MODE_PIN 35  // Mode control analog input in reality mode
+#define VALVE_STATUS_PIN 34 // Valve control analog input in reality mode
+#define VALVE_MODE_PIN 35   // Mode control analog input in reality mode
 
 // System Modes
 #define MODE_REALITY 0  // Reality mode
@@ -186,7 +191,7 @@ const uint8_t TUTORIAL_QR[QR_SIZE][QR_SIZE] = {
 #define WIFI_TIMEOUT 10000 // Connection timeout (ms)
 
 // MQTT Broker Settings
-#define MQTT_BROKER "192.168.0.102"
+#define MQTT_BROKER "192.168.0.100"
 #define MQTT_PORT 1883 // Default MQTT port
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
@@ -194,15 +199,31 @@ const uint8_t TUTORIAL_QR[QR_SIZE][QR_SIZE] = {
 
 // MQTT Topics
 #define MQTT_DEVICE_INFOR_TOPIC "device_info"
-#define MQTT_TRAINING_TOPIC "training_data_id_" + String(DEVICE_ID)
-#define MQTT_REALITY_TOPIC "real_data_id_" + String(DEVICE_ID)
+#define MQTT_TRAINING_TOPIC "training_id/14" 
+#define MQTT_REALITY_TOPIC "reality_id/14"
 
 // Message Publishing Configuration
-#define PUBLISH_INTERVAL 100 // Minimum time between messages (ms)
+#define PUBLISH_INTERVAL 50 // Minimum time between messages (ms)
 
 /*#############################################################################################################*/
-
 using namespace std;
+
+#define MAP_WIDTH_MAX 10
+#define MAP_HEIGHT_MAX 10
+
+typedef struct {
+    int valve_open_status;  // 0-100%
+    int mode_status;       // 0-100%
+} Valve_Data;
+
+
+
+struct Map_data
+{
+    int width;
+    int height;
+    int map_cells[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
+};
 
 // RSSI_Data defines
 /*#############################################################################################################*/
@@ -215,6 +236,7 @@ struct RSSI_Data
     int rssi;
     unsigned long last_receive_time;
 };
+
 // RSSI_Timeout defines
 #define RSSI_Timeout 3000 // RSSI timeout (ms)
 
@@ -275,7 +297,7 @@ struct IMU_Data
 /*#############################################################################################################*/
 
 // Colour define for LCD
-/*#############################################################################################################*/
+/*############################################################################################################*/
 
 #define BLUE 0x001F
 #define WHITE 0xFFFF
@@ -296,17 +318,17 @@ extern vector<int> passable_map_id;
 extern vector<int> not_passable_map_id;
 
 // Tọa độ xử lý map_grid
-struct Coordinate
+struct int_Coordinate
 {
     int x, y;
 };
 
 // Tọa độ các ô đi được/không đi được trong map
-extern vector<Coordinate> map_grid;
-extern vector<Coordinate> not_map_grid;
-extern vector<Coordinate> last_map_grid;
-extern vector<Coordinate> last_not_map_grid;
-extern bool map_updated;
+// extern vector<Coordinate> map_grid;
+// extern vector<Coordinate> not_map_grid;
+// extern vector<Coordinate> last_map_grid;
+// extern vector<Coordinate> last_not_map_grid;
+// extern bool map_updated;
 
 // Góc offset giữa cực Bắc thực tế và cực bắc của map
 extern float north_offset;
@@ -317,22 +339,20 @@ struct User_data
     float user_x;
     float user_y;
     int user_score;
-    int user_speed;
 };
 extern bool user_updated;
 
 // Ngọn lửa
-struct Fire_properties
+struct Fire_data
 {
-    int fire_id;
-    float fire_x;
-    float fire_y;
+    int fire_x;
+    int fire_y;
     int fire_lvl;
 };
-struct Fire
-{
-    Fire_properties fire_data[99];
-};
+// struct Fire
+// {
+//     Fire_properties fire_data[99];
+// };
 extern bool fire_updated;
 
 // Màu hiển thị ngọn lửa theo mức lvl
@@ -344,6 +364,13 @@ const uint16_t fire_color[6] = {
     0xA984, // lv4
     0xA804  // lv5
 };
+
+#define BACKGROUND_COLOR        0x0000      // Black
+#define USER_DOT_COLOR          0x001F      // Blue
+#define USER_VIEW_CONE_COLOR    0x07E0      // Green
+#define MAP_GRID_COLOR          0xFFFF      // White
+#define NOT_MAP_GRID_COLOR      0x001F      // Blue
+#define STATIC_TEXT_COLOR       0xFFFF      // White
 /*#############################################################################################################*/
 
 #endif

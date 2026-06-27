@@ -1,16 +1,14 @@
-#include "button_handler.h"
+#include "services/button_handle.h"
 
 /*#############################################################################################################*/
 /**
  * @brief Initialize GPIO pins for buttons and analog inputs
  */
 /*#############################################################################################################*/
-void button_and_valve_init()
+void init_button()
 {
     pinMode(MODE_SWITCH_PIN, INPUT_PULLUP);
     pinMode(TRANS_PIN, INPUT_PULLUP);
-    pinMode(VALVE_PIN, INPUT);
-    pinMode(MODE_PIN, INPUT);
 }
 
 /*#############################################################################################################*/

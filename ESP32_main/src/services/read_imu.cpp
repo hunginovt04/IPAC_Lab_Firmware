@@ -1,40 +1,37 @@
-#include "read_imu_data.h"
+#include "services/read_imu.h"
 
 /*#############################################################################################################*/
 /**
- * @brief Read 16-bit data from BNO055 sensor registers
- * @param reg Starting register address to read from
- * @return Combined 16-bit value from two 8-bit registers
- *
- * This function reads two consecutive 8-bit registers and combines them into a single 16-bit value using
- * LSB-first format.
- * The LSB (Least Significant Byte) is read first followed by the MSB (Most Significant Byte).
+ * @brief Initialize the IMU sensor
+ * @return None
  */
-/*#############################################################################################################*/
-
-int16_t read_16_bit_LSB_MSB(uint8_t reg)
+void init_IMU(void)
 {
-    // Start I2C transmission with BNO055
-    Wire.beginTransmission(BNO055_ADDRESS);
-    // Send the register address we want to read from
-    Wire.write(reg);
-    // End transmission but keep connection active (false parameter)
-    Wire.endTransmission(false);
-    // Request 2 bytes from the specified register
-    Wire.requestFrom((uint8_t)BNO055_ADDRESS, (uint8_t)2);
-    // Read LSB (Least Significant Byte) first - lower 8 bits
-    int16_t value = Wire.read();
-    // Read MSB (Most Significant Byte) and shift left by 8 bits
-    // Then combine with LSB using OR operation
-    value |= (Wire.read() << 8);
-    // Return the combined 16-bit value
-    return value;
+// Init I2C
+Wire.begin(I2C_SDA, I2C_SCL);
+
+// // Configure sensor 1
+// Wire.beginTransmission(BNO055_EX_ADDRESS);
+// Wire.write(BNO055_OPR_MODE_ADDR);
+// Wire.write(BNO055_MODE_NDOF);
+// Wire.endTransmission();
+
+// delay(BNO055_CONFIG_DELAY);
+
+// Configure sensor 2
+Wire.beginTransmission(BNO055_IN_ADDRESS);
+Wire.write(BNO055_OPR_MODE_ADDR);
+Wire.write(BNO055_MODE_NDOF);
+Wire.endTransmission();
+
+delay(BNO055_CONFIG_DELAY);
 }
 
 /*#############################################################################################################*/
 /**
  * @brief Read raw sensor data from BNO055 and store in IMU_Raw_Data structure
  * @param imu_raw_data Pointer to structure where raw sensor data will be stored
+ * @param device_address I2C address of the BNO055 sensor
  *
  * This function reads all sensor data in sequence:
  * - Accelerometer (X,Y,Z) starting from ACC_DATA_START
@@ -46,34 +43,34 @@ int16_t read_16_bit_LSB_MSB(uint8_t reg)
 
 /*#############################################################################################################*/
 
-void read_IMU_raw_data(IMU_Raw_Data *imu_raw_data)
+void read_IMU_raw_data(IMU_Raw_Data *imu_raw_data, uint8_t device_address)
 {
     // Read Accelerometer data (X,Y,Z)
     // Each axis requires 2 registers (LSB + MSB)
-    imu_raw_data->acc_raw.x = read_16_bit_LSB_MSB(ACC_DATA_START);     // X: registers 0x08, 0x09
-    imu_raw_data->acc_raw.y = read_16_bit_LSB_MSB(ACC_DATA_START + 2); // Y: registers 0x0A, 0x0B
-    imu_raw_data->acc_raw.z = read_16_bit_LSB_MSB(ACC_DATA_START + 4); // Z: registers 0x0C, 0x0D
+    imu_raw_data->acc_raw.x = read_16_bit_LSB_MSB(ACC_DATA_START, device_address);     // X: registers 0x08, 0x09
+    imu_raw_data->acc_raw.y = read_16_bit_LSB_MSB(ACC_DATA_START + 2, device_address); // Y: registers 0x0A, 0x0B
+    imu_raw_data->acc_raw.z = read_16_bit_LSB_MSB(ACC_DATA_START + 4, device_address); // Z: registers 0x0C, 0x0D
 
     // Read Gyroscope data (X,Y,Z)
-    imu_raw_data->gyro_raw.x = read_16_bit_LSB_MSB(GYRO_DATA_START);     // X: registers 0x14, 0x15
-    imu_raw_data->gyro_raw.y = read_16_bit_LSB_MSB(GYRO_DATA_START + 2); // Y: registers 0x16, 0x17
-    imu_raw_data->gyro_raw.z = read_16_bit_LSB_MSB(GYRO_DATA_START + 4); // Z: registers 0x18, 0x19
+    imu_raw_data->gyro_raw.x = read_16_bit_LSB_MSB(GYRO_DATA_START, device_address);     // X: registers 0x14, 0x15
+    imu_raw_data->gyro_raw.y = read_16_bit_LSB_MSB(GYRO_DATA_START + 2, device_address); // Y: registers 0x16, 0x17
+    imu_raw_data->gyro_raw.z = read_16_bit_LSB_MSB(GYRO_DATA_START + 4, device_address); // Z: registers 0x18, 0x19
 
     // Read Magnetometer data (X,Y,Z)
-    imu_raw_data->mag_raw.x = read_16_bit_LSB_MSB(MAG_DATA_START);     // X: registers 0x0E, 0x0F
-    imu_raw_data->mag_raw.y = read_16_bit_LSB_MSB(MAG_DATA_START + 2); // Y: registers 0x10, 0x11
-    imu_raw_data->mag_raw.z = read_16_bit_LSB_MSB(MAG_DATA_START + 4); // Z: registers 0x12, 0x13
+    imu_raw_data->mag_raw.x = read_16_bit_LSB_MSB(MAG_DATA_START, device_address);     // X: registers 0x0E, 0x0F
+    imu_raw_data->mag_raw.y = read_16_bit_LSB_MSB(MAG_DATA_START + 2, device_address); // Y: registers 0x10, 0x11
+    imu_raw_data->mag_raw.z = read_16_bit_LSB_MSB(MAG_DATA_START + 4, device_address); // Z: registers 0x12, 0x13
 
     // Read Euler angles (Roll, Pitch, Heading)
-    imu_raw_data->euler_raw.x = read_16_bit_LSB_MSB(EULER_DATA_START);     // Roll: registers 0x1A, 0x1B
-    imu_raw_data->euler_raw.y = read_16_bit_LSB_MSB(EULER_DATA_START + 2); // Pitch: registers 0x1C, 0x1D
-    imu_raw_data->euler_raw.z = read_16_bit_LSB_MSB(EULER_DATA_START + 4); // Heading: registers 0x1E, 0x1F
+    imu_raw_data->euler_raw.z = read_16_bit_LSB_MSB(EULER_DATA_START, device_address);     // Heading: registers 0x1E, 0x1F
+    imu_raw_data->euler_raw.x = read_16_bit_LSB_MSB(EULER_DATA_START + 2, device_address); // Roll: registers 0x1A, 0x1B
+    imu_raw_data->euler_raw.y = read_16_bit_LSB_MSB(EULER_DATA_START + 4, device_address); // Pitch: registers 0x1C, 0x1D
 
     // Read Quaternion data (W,X,Y,Z)
-    imu_raw_data->quaternion_raw.w = read_16_bit_LSB_MSB(QUATERNION_DATA_START);     // W: registers 0x20, 0x21
-    imu_raw_data->quaternion_raw.x = read_16_bit_LSB_MSB(QUATERNION_DATA_START + 2); // X: registers 0x22, 0x23
-    imu_raw_data->quaternion_raw.y = read_16_bit_LSB_MSB(QUATERNION_DATA_START + 4); // Y: registers 0x24, 0x25
-    imu_raw_data->quaternion_raw.z = read_16_bit_LSB_MSB(QUATERNION_DATA_START + 6); // Z: registers 0x26, 0x27
+    imu_raw_data->quaternion_raw.w = read_16_bit_LSB_MSB(QUATERNION_DATA_START, device_address);     // W: registers 0x20, 0x21
+    imu_raw_data->quaternion_raw.x = read_16_bit_LSB_MSB(QUATERNION_DATA_START + 2, device_address); // X: registers 0x22, 0x23
+    imu_raw_data->quaternion_raw.y = read_16_bit_LSB_MSB(QUATERNION_DATA_START + 4, device_address); // Y: registers 0x24, 0x25
+    imu_raw_data->quaternion_raw.z = read_16_bit_LSB_MSB(QUATERNION_DATA_START + 6, device_address); // Z: registers 0x26, 0x27
 }
 
 /*#############################################################################################################*/
@@ -91,28 +88,28 @@ void read_IMU_raw_data(IMU_Raw_Data *imu_raw_data)
  */
 /*#############################################################################################################*/
 
-void convert_IMU_raw_data_to_real_local_data(IMU_Raw_Data imu_raw_data, IMU_Real_local_Data *imu_real_local_data)
+void convert_IMU_raw_data_to_real_local_data(IMU_Raw_Data* imu_raw_data, IMU_Real_local_Data *imu_real_local_data)
 {
     // Convert Accelerometer data
     // LSB/mg (milli-g)
     // Range ±2g: 1m/s^2 = 100 LSB
-    imu_real_local_data->acc_local_real.x = imu_raw_data.acc_raw.x / 1000.0; // Convert to g
-    imu_real_local_data->acc_local_real.y = imu_raw_data.acc_raw.y / 1000.0; // Convert to g
-    imu_real_local_data->acc_local_real.z = imu_raw_data.acc_raw.z * 0.0098; // Convert to g
+    imu_real_local_data->acc_local_real.x = imu_raw_data->acc_raw.x / 1000.0; // Convert to g
+    imu_real_local_data->acc_local_real.y = imu_raw_data->acc_raw.y / 1000.0; // Convert to g
+    imu_real_local_data->acc_local_real.z = imu_raw_data->acc_raw.z * 0.0098; // Convert to g
 
     // Convert Gyroscope data
     // LSB/dps (degrees per second)
     // Range ±2000°/s: 1°/s = 16 LSB
-    imu_real_local_data->gyro_local_real.x = imu_raw_data.gyro_raw.x * 0.0625; // Convert to degrees/s
-    imu_real_local_data->gyro_local_real.y = imu_raw_data.gyro_raw.y * 0.0625; // Convert to degrees/s
-    imu_real_local_data->gyro_local_real.z = imu_raw_data.gyro_raw.z * 0.0625; // Convert to degrees/s
+    imu_real_local_data->gyro_local_real.x = imu_raw_data->gyro_raw.x * 0.0625; // Convert to degrees/s
+    imu_real_local_data->gyro_local_real.y = imu_raw_data->gyro_raw.y * 0.0625; // Convert to degrees/s
+    imu_real_local_data->gyro_local_real.z = imu_raw_data->gyro_raw.z * 0.0625; // Convert to degrees/s
 
     // Convert Magnetometer data
     // LSB/µT (microTesla)
     // Range ±1300µT: 1µT = 16 LSB
-    imu_real_local_data->mag_local_real.x = imu_raw_data.mag_raw.x / 16.0; // Convert to microTesla
-    imu_real_local_data->mag_local_real.y = imu_raw_data.mag_raw.y / 16.0; // Convert to microTesla
-    imu_real_local_data->mag_local_real.z = imu_raw_data.mag_raw.z / 16.0; // Convert to microTesla
+    imu_real_local_data->mag_local_real.x = imu_raw_data->mag_raw.x / 16.0; // Convert to microTesla
+    imu_real_local_data->mag_local_real.y = imu_raw_data->mag_raw.y / 16.0; // Convert to microTesla
+    imu_real_local_data->mag_local_real.z = imu_raw_data->mag_raw.z / 16.0; // Convert to microTesla
 
     // Convert Euler Angles data
     // LSB/degree
@@ -124,17 +121,17 @@ void convert_IMU_raw_data_to_real_local_data(IMU_Raw_Data imu_raw_data, IMU_Real
     //        Y-axis: Points to North
     //        Z-axis: Points Up (opposite to gravity)
     // 1° = 16 LSB
-    imu_real_local_data->euler_real.x = imu_raw_data.euler_raw.x / 16.0; // Convert to degrees (Roll)
-    imu_real_local_data->euler_real.y = imu_raw_data.euler_raw.y / 16.0; // Convert to degrees (Pitch)
-    imu_real_local_data->euler_real.z = imu_raw_data.euler_raw.z / 16.0; // Convert to degrees (Yaw/Heading)
+    imu_real_local_data->euler_real.x = imu_raw_data->euler_raw.x / 16.0; // Convert to degrees (Roll)
+    imu_real_local_data->euler_real.y = imu_raw_data->euler_raw.y / 16.0; // Convert to degrees (Pitch)
+    imu_real_local_data->euler_real.z = imu_raw_data->euler_raw.z / 16.0; // Convert to degrees (Yaw/Heading)
 
     // Convert Quaternion data
     // LSB/quaternion unit
     // Range: 1 quaternion unit = 2^14 LSB = 16384 LSB
-    imu_real_local_data->quaternion_real.w = imu_raw_data.quaternion_raw.w / 16384.0; // Convert to quaternion unit
-    imu_real_local_data->quaternion_real.x = imu_raw_data.quaternion_raw.x / 16384.0; // Convert to quaternion unit
-    imu_real_local_data->quaternion_real.y = imu_raw_data.quaternion_raw.y / 16384.0; // Convert to quaternion unit
-    imu_real_local_data->quaternion_real.z = imu_raw_data.quaternion_raw.z / 16384.0; // Convert to quaternion unit
+    imu_real_local_data->quaternion_real.w = imu_raw_data->quaternion_raw.w / 16384.0; // Convert to quaternion unit
+    imu_real_local_data->quaternion_real.x = imu_raw_data->quaternion_raw.x / 16384.0; // Convert to quaternion unit
+    imu_real_local_data->quaternion_real.y = imu_raw_data->quaternion_raw.y / 16384.0; // Convert to quaternion unit
+    imu_real_local_data->quaternion_real.z = imu_raw_data->quaternion_raw.z / 16384.0; // Convert to quaternion unit
 }
 
 /*#############################################################################################################*/
@@ -279,11 +276,11 @@ void convert_IMU_local_data_to_global_data(IMU_Real_local_Data imu_real_local_da
  */
 /*#############################################################################################################*/
 
-void read_IMU_data(IMU_Data *imu_data)
+void read_IMU_data(IMU_Data *imu_data, uint8_t device_address)
 {
     IMU_Raw_Data imu_raw_data;
     IMU_Real_local_Data imu_real_local_data;
-    read_IMU_raw_data(&imu_raw_data);
-    convert_IMU_raw_data_to_real_local_data(imu_raw_data, &imu_real_local_data);
+    read_IMU_raw_data(&imu_raw_data, device_address);
+    convert_IMU_raw_data_to_real_local_data(&imu_raw_data, &imu_real_local_data);
     convert_IMU_local_data_to_global_data(imu_real_local_data, imu_data);
 }

@@ -18,17 +18,18 @@ void app_main()
     ble_init();
     uart_init();
 
-    // Khoi tao task
-    xTaskCreatePinnedToCore(
-        print_task,
-        "print_task",
-        4096,
-        NULL,
-        5,
-        NULL,
-        1);
+    // // Khoi tao task
+    // xTaskCreatePinnedToCore(
+    //     print_task,
+    //     "print_task",
+    //     4096,
+    //     NULL,
+    //     5,
+    //     NULL,
+    //     1);
 
     while (1)
     {
+       vTaskDelay(pdMS_TO_TICKS(10));
     }
 }

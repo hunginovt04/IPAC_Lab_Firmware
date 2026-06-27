@@ -1,8 +1,7 @@
-#ifndef READ_UART_H
-#define READ_UART_H
+#ifndef UART_H
+#define UART_H
 
 // Libraries
-#include <Arduino.h>
 #include "config.h"
 
 // Function declarations
