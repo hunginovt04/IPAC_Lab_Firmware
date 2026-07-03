@@ -186,12 +186,12 @@ const uint8_t DEMO_QR[QR_SIZE][QR_SIZE] = {
 /*#############################################################################################################*/
 
 // WiFi Settings
-#define WIFI_SSID "RSSI1"
-#define WIFI_PASSWORD "11111111"
+#define WIFI_SSID "TP-Link_C6B0"
+#define WIFI_PASSWORD "70803532"
 #define WIFI_TIMEOUT 10000 // Connection timeout (ms)
 
 // MQTT Broker Settings
-#define MQTT_BROKER "192.168.0.100"
+#define MQTT_BROKER "192.168.0.104"
 #define MQTT_PORT 1883 // Default MQTT port
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
@@ -211,31 +211,17 @@ using namespace std;
 #define MAP_WIDTH_MAX 10
 #define MAP_HEIGHT_MAX 10
 
-typedef struct {
-    int valve_open_status;  // 0-100%
-    int mode_status;       // 0-100%
-} Valve_Data;
-
-
-
-struct Map_data
-{
-    int width;
-    int height;
-    int map_cells[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
-};
-
 // RSSI_Data defines
 /*#############################################################################################################*/
 
 // RSSI_Data struct
-struct RSSI_Data
+typedef struct RSSI_Data
 {
     String ssid;
     int ssid_id;
     int rssi;
     unsigned long last_receive_time;
-};
+} RSSI_Data;
 
 // RSSI_Timeout defines
 #define RSSI_Timeout 3000 // RSSI timeout (ms)
@@ -333,26 +319,39 @@ struct int_Coordinate
 // Góc offset giữa cực Bắc thực tế và cực bắc của map
 extern float north_offset;
 
-// Vị trí người dùng
-struct User_data
+typedef struct Valve_Data 
 {
+    int valve_open_status;  // 0-100%
+    int mode_status;       // 0-100%
+}Valve_Data;
+
+
+
+typedef struct Map_data
+{
+    int width;
+    int height;
+    int map_cells[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
+}Map_data;
+//extern bool map_updated;
+
+// Vị trí người dùng
+typedef struct User_data
+{
+    float last_user_x;
+    float last_user_y;
     float user_x;
     float user_y;
     int user_score;
-};
+} User_data;
 extern bool user_updated;
 
 // Ngọn lửa
-struct Fire_data
+typedef struct Fire_data
 {
-    int fire_x;
-    int fire_y;
-    int fire_lvl;
-};
-// struct Fire
-// {
-//     Fire_properties fire_data[99];
-// };
+    int fire_map[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
+    int fire_num;
+} Fire_data;
 extern bool fire_updated;
 
 // Màu hiển thị ngọn lửa theo mức lvl

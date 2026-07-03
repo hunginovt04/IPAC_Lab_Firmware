@@ -5,25 +5,13 @@ void init_valve(void)
     pinMode(VALVE_STATUS_PIN, INPUT);
     pinMode(VALVE_MODE_PIN, INPUT);
 }
-void read_valve_open_status(int *valve_open_status, int *mode_status)
+void read_valve(Valve_Data *valve_data)
 {
-    int raw_value = analogRead(VALVE_STATUS_PIN);
+    int raw_valve_status = analogRead(VALVE_STATUS_PIN);
+    int raw_valve_mode = analogRead(VALVE_MODE_PIN);
 
     // Convert ADC value to opening percentage
-    *valve_open_status = (int)((raw_value / 700.0) * 100);
+    valve_data->valve_open_status = (int)((raw_valve_status / 700.0) * 100);
+    valve_data->mode_status = (int)((raw_valve_mode / 700.0) * 100);
 
-    // Limit the result to the range 0 - 100%
-    if (*valve_open_status > 100)
-    {
-        *valve_open_status = 100;
-    }
-    else if (*valve_open_status < 0)
-    {
-        *valve_open_status = 0;
-    }
-    if (*valve_open_status > 0)
-        *mode_status = 1;
 }
-void read_valve_mode(void) {
-    int raw_value = analogRead(VALVE_MODE_PIN);
-};

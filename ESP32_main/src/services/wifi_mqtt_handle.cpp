@@ -8,11 +8,6 @@ String map_data_topic = "map_data/" + String(DEVICE_ID);
 String user_data_topic = "user_pos/" + String(DEVICE_ID);
 String fire_data_topic = "fire_data/" + String(DEVICE_ID);
 
-// Flag check update
-bool map_updated = false;
-bool user_updated = false;
-bool fire_updated = false;
-
 bool connect_wifi() {
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     unsigned long start_time = millis();
@@ -42,13 +37,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
     // Redirect callback handle based on topic
     if (strcmp(topic, user_data_topic.c_str()) == 0) {
-        handle_mqtt_topic_user_pos(user, message);
+        handle_user_topic(message);
     }
     else if(strcmp(topic, fire_data_topic.c_str()) == 0){
-       handle_mqtt_topic_flames_data(flames, message);
+       handle_fire_topic(message);
     }
     else if(strcmp(topic, map_data_topic.c_str()) == 0){
-        handle_mqtt_topic_map_data(exercise_map, message);
+        handle_map_topic(message);
     }
 }
 

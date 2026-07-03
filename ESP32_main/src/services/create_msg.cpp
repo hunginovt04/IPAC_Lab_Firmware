@@ -37,7 +37,7 @@ void get_training_msg(RSSI_Data *wifi_rssi_data, RSSI_Data *ble_rssi_data,
 }
 
 void get_real_msg(RSSI_Data *wifi_rssi_data, RSSI_Data *ble_rssi_data,
-                  IMU_Data &imu_data, int &valve_status, int &mode_status,
+                  IMU_Data &imu_data, Valve_Data &valve_data,
                   String &message)
 {
     JsonDocument doc;
@@ -70,8 +70,8 @@ void get_real_msg(RSSI_Data *wifi_rssi_data, RSSI_Data *ble_rssi_data,
     euler["roll"] = imu_data.euler.x;
     euler["pitch"] = imu_data.euler.y;
     euler["yaw"] = imu_data.euler.z;
-    valve["open"] = valve_status;
-    valve["mode"] = mode_status;
+    valve["open"] = valve_data.valve_open_status;
+    valve["mode"] = valve_data.mode_status;
 
     serializeJson(doc, message);
 }

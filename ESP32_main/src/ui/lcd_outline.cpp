@@ -61,6 +61,7 @@ void draw_qr_code(Adafruit_ILI9341 &tft, int x, int y, int scale)
 }
 void lcd_default_mode_outline(Adafruit_ILI9341 &tft, RSSI_Data *wifi_rssi_data, RSSI_Data *ble_rssi_data)
 {
+    lcd_setup_outline(tft);
     // Setup out line
     tft.setCursor(40, 15);
     tft.setTextColor(WHITE);
@@ -260,8 +261,12 @@ void lcd_training_mode_outline(Adafruit_ILI9341 &tft)
 
 void lcd_reality_mode_outline(Adafruit_ILI9341 &tft)
 {
-    lcd_setup_outline(tft);
-    tft.setCursor(40, 15);
+    tft.fillScreen(BLACK);
+    tft.setCursor(15, 5);
+    tft.setTextColor(WHITE);
+    tft.setTextSize(1);
+    tft.println("iPAC Lab | Target Tracking");
+    tft.setCursor(250, 5);
     tft.setTextColor(RED);
     tft.setTextSize(1);
     tft.println("REALITY");

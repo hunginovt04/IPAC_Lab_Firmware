@@ -1,29 +1,8 @@
-#include "data_handle.h"
+#include "services/data_handle.h"
 
 String device_payload_buffer = "";
 
-/*--------------------------------------------------------------------------------------------------------*/
-/**
- * @brief
- */
-/*--------------------------------------------------------------------------------------------------------*/
-// void handle_mqtt_topic_user_pos(UserDisplay &user_instance, const char* payload)
-// {
-//     String data = String(payload);
-//     int commaIndex1 = data.indexOf(',');
-//     int commaIndex2 = data.indexOf(',', commaIndex1 + 1);
-
-//     if (commaIndex1 != -1 && commaIndex2 != -1) {
-//         String x = data.substring(0, commaIndex1);
-//         String y = data.substring(commaIndex1 + 1, commaIndex2);
-//         String score = data.substring(commaIndex2 + 1);
-        
-//         // user_instance.hasNewData();
-//         user_instance.updateData(x.toFloat(), y.toFloat(), score.toInt());
-//         // Serial.println("User position updated!"\r\n);
-//     }
-// }
-void handle_mqtt_topic_user_pos(UserDisplay &user_instance, const char* payload)
+void handle_user_topic(const char* payload)
 {
     //De-serialise payload
     JsonDocument doc;
@@ -42,7 +21,7 @@ void handle_mqtt_topic_user_pos(UserDisplay &user_instance, const char* payload)
     int score = doc["score"];
 
     // user_instance.hasNewData();
-    user_instance.updateData(x, y, score);
+    user.updateData(x, y, score);
 }
 
 
@@ -51,10 +30,10 @@ void handle_mqtt_topic_user_pos(UserDisplay &user_instance, const char* payload)
  * @brief
  */
 /*--------------------------------------------------------------------------------------------------------*/
-void handle_mqtt_topic_flames_data(FlamesDisplay &flames_instance, const char* payload)
+void handle_fire_topic(const char* payload)
 {
     // flames_instance.hasNewData();
-    flames_instance.updateData(payload);
+    flames.updateData(payload);
     // Serial.println("Flames updated!\r\n");
 }
 
@@ -64,10 +43,10 @@ void handle_mqtt_topic_flames_data(FlamesDisplay &flames_instance, const char* p
  * @brief
  */
 /*--------------------------------------------------------------------------------------------------------*/
-void handle_mqtt_topic_map_data(MapDisplay &map_instance, const char* payload)
+void handle_map_topic(const char* payload)
 {
     // map_instance.hasNewData();
-    map_instance.updateData(payload);
+    exercise_map.updateData(payload);
     // Serial.println("Map updated!\r\n");
 }
 
@@ -115,7 +94,6 @@ void nozzel_device_packing_mqtt_payload(IMU_Data &imu_data, Valve_Data &valve_da
     device_payload_buffer = ""; 
     serializeJson(doc, device_payload_buffer);
 }
-
 
 /*--------------------------------------------------------------------------------------------------------*/
 /**

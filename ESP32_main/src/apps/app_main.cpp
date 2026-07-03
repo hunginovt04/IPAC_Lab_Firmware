@@ -35,7 +35,7 @@ void app_setup() {
     init_uart_esp32(uart_esp_wifi, uart_esp_ble);
     init_IMU();
     init_button();
-    //init_valve();
+    init_valve();
     init_lcd(tft);
     init_wifi_mqtt();
     lcd_setup_outline(tft);

@@ -14,7 +14,6 @@
  * @param valve_open_status Pointer to store the valve opening percentage
  */
 void init_valve(void);
-void read_valve_open_status(int* valve_open_status, int* mode_status);
-void read_valve_mode(void);
+void read_valve(Valve_Data *valve_data);
 
 #endif

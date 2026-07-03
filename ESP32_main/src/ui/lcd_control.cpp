@@ -1,9 +1,5 @@
 #include "ui/lcd_control.h"
 
-extern bool map_updated;
-extern bool user_updated;
-extern bool fire_updated;
-
 extern Map_data map_data;
 extern float north_offset;
 extern int fire_map[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
@@ -147,64 +143,146 @@ void lcd_display_training_mode(Adafruit_ILI9341 &tft,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void coordinate_to_pixel(float coor_x, float coor_y, int &pixel_x, int &pixel_y)
 {
-    if (coor_x < 0)
-        coor_x = 0;
-    if (coor_x > 10)
-        coor_x = 10;
-    if (coor_y < 0)
-        coor_y = 0;
-    if (coor_y > 10)
-        coor_y = 10;
-    // X: 0-10 to pixel 10-210 (200 pixels for 10 units)
-    pixel_x = round(10 + (coor_x / 10.0f) * 200);
-    // Y: 0-10 to pixel 230-30 (200 pixels for 10 units)
-    pixel_y = round(230 - (coor_y / 10.0f) * 200);
+    // Normalize outlier
+    if (coor_x < 0) coor_x = 0;
+    if (coor_x > 10) coor_x = 10;
+    if (coor_y < 0) coor_y = 0;
+    if (coor_y > 10) coor_y = 10;
+
+    // X: Mapping from 0–10 (descartes) to 9–211 (pixel)
+    pixel_x = round(9 + (coor_x / 10.0f) * (211 - 9));
+    // Y: Mapping from 0–10 (descartes) to 221–19 (pixel) (reverse y axis with ILI9341)
+    pixel_y = round(221 - (coor_y / 10.0f) * (221 - 19));
 }
 
-void lcd_display_reality_mode(Adafruit_ILI9341 &tft, IMU_Data &imu_data, int valve_status, int extinguish_mode)
+void lcd_setup_map_outline(Adafruit_ILI9341 &tft)
 {
+    tft.setTextColor(STATIC_TEXT_COLOR);
+    tft.setTextSize(1);
+    
+    // Vẽ các trục của map
+    tft.drawFastVLine(9, 19, 202, MAP_GRID_COLOR);
+    tft.drawFastHLine(9, 221, 202, MAP_GRID_COLOR);
+    tft.drawFastVLine(217, 0, 240, MAP_GRID_COLOR);
+
+    // Trục Y - Hướng north của map
+    tft.setCursor(0, 16);
+    tft.println("10");
+    tft.setCursor(1, 36);
+    tft.println("9");
+    tft.setCursor(1, 56);
+    tft.println("8");
+    tft.setCursor(1, 76);
+    tft.println("7");
+    tft.setCursor(1, 96);
+    tft.println("6");
+    tft.setCursor(1, 116);
+    tft.println("5");
+    tft.setCursor(1, 136);
+    tft.println("4");
+    tft.setCursor(1, 156);
+    tft.println("3");
+    tft.setCursor(1, 176);
+    tft.println("2");
+    tft.setCursor(1, 196);
+    tft.println("1");
+
+    // Trục x
+    tft.setCursor(27, 226);
+    tft.println("1");
+    tft.setCursor(47, 226);
+    tft.println("2");
+    tft.setCursor(67, 226);
+    tft.println("3");
+    tft.setCursor(87, 226);
+    tft.println("4");
+    tft.setCursor(107, 226);
+    tft.println("5");
+    tft.setCursor(127, 226);
+    tft.println("6");
+    tft.setCursor(147, 226);
+    tft.println("7");
+    tft.setCursor(167, 226);
+    tft.println("8");
+    tft.setCursor(187, 226);
+    tft.println("9");
+    tft.setCursor(207, 226);
+    tft.println("10");
+    tft.setCursor(1, 226);
+    tft.println("0");
+}
+
+void lcd_display_map(Adafruit_ILI9341 &tft, Map_data &map_data)
+{
+    // Clear previous map
+    tft.fillRect(10, 21, 200, 200, BACKGROUND_COLOR);
+
+    // Draw new map
+    for (int x = 0; x < map_data.width; x++)
+    {
+        for (int y = 0; y < map_data.height; y++)
+        {
+            if (map_data.map_cells[x][y] == 1)
+            {
+                int pixel_x, pixel_y;
+                coordinate_to_pixel(x, y, pixel_x, pixel_y);
+                tft.drawRect(pixel_x, pixel_y - 20, 20, 20, MAP_GRID_COLOR);
+            }
+        }
+    }
+}
+void lcd_display_fire(Adafruit_ILI9341 &tft, Fire_data &fire_data)
+{
+    // Draw new fire
+    for (int x = 0; x < MAP_WIDTH_MAX; x++)
+    {
+        for (int y = 0; y < MAP_HEIGHT_MAX; y++)
+        {
+            if (fire_data.fire_map[x][y] == 0) // Delete fire
+            {
+                int pixel_x, pixel_y;
+                coordinate_to_pixel(x, y, pixel_x, pixel_y);
+                tft.fillRect(pixel_x + 1, pixel_y - 19, 18, 18, BACKGROUND_COLOR);
+            }else{
+
+                int pixel_x, pixel_y;
+                coordinate_to_pixel(x, y, pixel_x, pixel_y);
+                tft.fillRect(pixel_x + 2, pixel_y - 18, 16, 16, fire_color[fire_data.fire_map[x][y]]);
+            }
+        }
+    }
+}
+void lcd_display_user(Adafruit_ILI9341 &tft, User_data &user_data)
+{
+    // Clear previous user
+    int last_pixel_x, last_pixel_y;
+    coordinate_to_pixel(user_data.last_user_x, user_data.last_user_y, last_pixel_x, last_pixel_y);
+    tft.fillCircle(last_pixel_x + 10, last_pixel_y - 10, 5, BACKGROUND_COLOR);
+
+    // Draw new user
+    int pixel_x, pixel_y;
+    coordinate_to_pixel(user_data.user_x, user_data.user_y, pixel_x, pixel_y);
+    tft.fillCircle(pixel_x + 10, pixel_y - 10, 5, USER_DOT_COLOR);
+}
+
+
+void lcd_display_reality_mode(Adafruit_ILI9341 &tft, IMU_Data &imu_data, Map_data &map_data, User_data &user_data,
+                             Fire_data &fire_data, Valve_Data &valve_data)
+{
+    lcd_setup_map_outline(tft);
     if (map_updated)
     {
         map_updated = false;
-        for (int i = 0; i < map_data.width; i++)
-        {
-            for (int j = 0; j < map_data.height; j++)
-            {
-                int pixel_x, pixel_y;
-                coordinate_to_pixel(i, j, pixel_x, pixel_y);
-                if (map_data.map_cells[i][j] == 1)
-                {
-                    tft.drawRect(pixel_x, pixel_y - 20, 20, 20, WHITE);
-                }
-                else
-                {
-                    tft.drawRect(pixel_x, pixel_y - 20, 20, 20, WHITE);
-                    tft.drawLine(pixel_x, pixel_y - 20, pixel_x + 20, pixel_y, RED);
-                    for (int i = 1; i < 4; i ++)
-                    {
-                        tft.drawLine(
-                            pixel_x,
-                            pixel_y - i*5,
-                            pixel_x + i*5,
-                            pixel_y,
-                            RED);
-                        tft.drawLine(
-                            pixel_x + i*5,
-                            pixel_y - 20,
-                            pixel_x + 20,
-                            pixel_y - i*5,
-                            RED);
-                    }
-                }
-            }
-        }
+        lcd_display_map(tft, map_data);
     }
     if (fire_updated)
     {
         fire_updated = false;
+        lcd_display_fire(tft, fire_data);
     }
     if (user_updated)
     {
         user_updated = false;
+        lcd_display_user(tft, user_data);
     }
 }

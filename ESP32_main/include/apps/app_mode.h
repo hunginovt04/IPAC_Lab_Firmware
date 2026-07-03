@@ -9,7 +9,7 @@
 #include "ui/lcd_outline.h"
 #include "ui/lcd_control.h"
 
-#include "ili9341_ui.h"
+#include "ui/lcd_ui.h"
 
 void get_mode(ModeSystem &mode_of_system);
 void mode_update(ModeSystem &mode_of_system);
