@@ -270,4 +270,28 @@ void lcd_reality_mode_outline(Adafruit_ILI9341 &tft)
     tft.setTextColor(RED);
     tft.setTextSize(1);
     tft.println("REALITY");
+
+    // User score table
+    tft.drawFastVLine(220, 21, 49, STATIC_TEXT_COLOR);
+    tft.drawFastVLine(319, 21, 49, STATIC_TEXT_COLOR);
+    tft.drawFastHLine(220, 21, 99, STATIC_TEXT_COLOR);
+    tft.drawFastHLine(220, 35, 99, STATIC_TEXT_COLOR);
+    tft.drawFastHLine(220, 70, 99, STATIC_TEXT_COLOR);
+    tft.drawFastHLine(220, 78, 99, STATIC_TEXT_COLOR);
+
+    tft.setTextColor(WHITE);
+    tft.setTextSize(1);
+    tft.setCursor(240, 24);
+    tft.println("User score");
+    tft.setCursor(220, 85);
+    tft.println("Valve Opening:");
+    tft.setCursor(220, 133);
+
+    tft.fillCircle(230, 150, 4, BLUE);
+    tft.setCursor(240, 146);
+    tft.println("DEFAULT MODE");
+
+    tft.fillCircle(230, 165, 4, YELLOW);
+    tft.setCursor(240, 161);
+    tft.println("TRAINING MODE");
 }

@@ -1,6 +1,5 @@
 #include "services/mqtt_data_handle.h"
 
-float north_offset = 0;
 Map_data map_data;
 Fire_data fire_data;
 User_data user_data;
@@ -34,7 +33,7 @@ void handle_map_data_topic(const char *payload)
     }
     map_data.width = doc["info"]["x"];
     map_data.height = doc["info"]["y"];
-    north_offset = doc["info"]["north_offset"];
+    map_data.north_offset = doc["info"]["north_offset"];
     JsonArray passable_array = doc["cells"];
 
     for (JsonArray cell : passable_array)

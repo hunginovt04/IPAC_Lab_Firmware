@@ -191,7 +191,7 @@ const uint8_t DEMO_QR[QR_SIZE][QR_SIZE] = {
 #define WIFI_TIMEOUT 10000 // Connection timeout (ms)
 
 // MQTT Broker Settings
-#define MQTT_BROKER "192.168.0.104"
+#define MQTT_BROKER "192.168.0.103"
 #define MQTT_PORT 1883 // Default MQTT port
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
@@ -316,9 +316,6 @@ struct int_Coordinate
 // extern vector<Coordinate> last_not_map_grid;
 // extern bool map_updated;
 
-// Góc offset giữa cực Bắc thực tế và cực bắc của map
-extern float north_offset;
-
 typedef struct Valve_Data 
 {
     int valve_open_status;  // 0-100%
@@ -332,6 +329,7 @@ typedef struct Map_data
     int width;
     int height;
     int map_cells[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
+    int north_offset;
 }Map_data;
 //extern bool map_updated;
 
@@ -343,6 +341,15 @@ typedef struct User_data
     float user_x;
     float user_y;
     int user_score;
+    float curr_yaw_angle;                   // User current yaw angle
+    float prev_yaw_angle;                   // User previous yaw angle
+    // User vision range (Fire's impact range)
+    float curr_vision_range;
+    float prev_vision_range;
+
+    // User's POV (Fire's impact angle)  
+    float curr_view_cone_angle;
+    float prev_view_cone_angle;
 } User_data;
 extern bool user_updated;
 

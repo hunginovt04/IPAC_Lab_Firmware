@@ -37,13 +37,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
     // Redirect callback handle based on topic
     if (strcmp(topic, user_data_topic.c_str()) == 0) {
-        handle_user_topic(message);
+        handle_user_data_topic(message);
     }
     else if(strcmp(topic, fire_data_topic.c_str()) == 0){
-       handle_fire_topic(message);
+       handle_fire_data_topic(message);
     }
     else if(strcmp(topic, map_data_topic.c_str()) == 0){
-        handle_map_topic(message);
+        handle_map_data_topic(message);
     }
 }
 

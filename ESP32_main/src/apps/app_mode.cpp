@@ -96,7 +96,7 @@ void run_reality_mode(Adafruit_ILI9341 &tft, RSSI_Data *wifi_rssi_data,
     {
         publish_message(real_topic, message);
     }
-    tft_main_loop_handler(tft, user, flames, exercise_map, imu_data, valve_data);
+    //tft_main_loop_handler(tft, user, flames, exercise_map, imu_data, valve_data);
     lcd_display_reality_mode(tft, imu_data, map_data, user_data, fire_data, valve_data);
 }
 
