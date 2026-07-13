@@ -127,7 +127,7 @@ void lcd_default_mode_outline(Adafruit_ILI9341 &tft, RSSI_Data *wifi_rssi_data, 
     tft.println("Router Wifi " + String(wifi_rssi_data[3].ssid_id));
     tft.setCursor(85, 130);
     tft.println(": " + String(wifi_rssi_data[3].ssid));
-    
+
     // Information of BLE RSSI
     tft.setCursor(165, 100);
     tft.println("BLE Beacon " + String(ble_rssi_data[0].ssid_id));

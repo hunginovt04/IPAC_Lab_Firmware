@@ -18,8 +18,6 @@ void init_button()
  */
 /*#############################################################################################################*/
 
-// Ham check nut 2 co dang bat khong
-// Nut 2 la nut chuyen doi giữa Training Mode <-> Reality Mode
 bool is_sw2_on()
 {
     return !digitalRead(MODE_SWITCH_PIN);

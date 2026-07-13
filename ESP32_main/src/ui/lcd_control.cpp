@@ -5,11 +5,10 @@ extern float north_offset;
 extern int fire_map[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
 extern User_data user_data;
 
-unsigned char fire_bitmap[] PROGMEM = 
-{
-	0xff, 0xff, 0xfe, 0xff, 0xfc, 0xff, 0xfc, 0xff, 0xfc, 0x5f, 0xfc, 0x0f, 0xec, 0x0f, 0xce, 0x0f, 
-	0xc4, 0x13, 0xc0, 0x03, 0xc0, 0x03, 0xe0, 0x03, 0xe0, 0x07, 0xf0, 0x0f, 0xf8, 0x1f, 0xfe, 0x7f
-};
+unsigned char fire_bitmap[] PROGMEM =
+    {
+        0xff, 0xff, 0xfe, 0xff, 0xfc, 0xff, 0xfc, 0xff, 0xfc, 0x5f, 0xfc, 0x0f, 0xec, 0x0f, 0xce, 0x0f,
+        0xc4, 0x13, 0xc0, 0x03, 0xc0, 0x03, 0xe0, 0x03, 0xe0, 0x07, 0xf0, 0x0f, 0xf8, 0x1f, 0xfe, 0x7f};
 
 void evaluate_rssi_value(Adafruit_ILI9341 &tft, int rssi_value, int x, int y)
 {
@@ -150,10 +149,14 @@ void lcd_display_training_mode(Adafruit_ILI9341 &tft,
 void coordinate_to_pixel(float coor_x, float coor_y, int &pixel_x, int &pixel_y)
 {
     // Normalize outlier
-    if (coor_x < 0) coor_x = 0;
-    if (coor_x > 10) coor_x = 10;
-    if (coor_y < 0) coor_y = 0;
-    if (coor_y > 10) coor_y = 10;
+    if (coor_x < 0)
+        coor_x = 0;
+    if (coor_x > 10)
+        coor_x = 10;
+    if (coor_y < 0)
+        coor_y = 0;
+    if (coor_y > 10)
+        coor_y = 10;
 
     // X: Mapping from 0–10 (descartes) to 9–211 (pixel)
     pixel_x = round(9 + (coor_x / 10.00f) * (211 - 9));
@@ -165,7 +168,7 @@ void lcd_setup_map_outline(Adafruit_ILI9341 &tft)
 {
     tft.setTextColor(STATIC_TEXT_COLOR);
     tft.setTextSize(1);
-   
+
     // Vẽ các trục của map
     tft.drawFastVLine(9, 19, 202, MAP_GRID_COLOR);
     tft.drawFastHLine(9, 221, 202, MAP_GRID_COLOR);
@@ -228,16 +231,19 @@ void lcd_display_map(Adafruit_ILI9341 &tft, Map_data &map_data)
     int pixel_x, pixel_y;
 
     // Browse through all 10x10 grid
-    for (int x = 0; x < 10; x++) {
-        for (int y = 0; y < 10; y++) {
-            
+    for (int x = 0; x < 10; x++)
+    {
+        for (int y = 0; y < 10; y++)
+        {
+
             // Lấy tọa độ góc trên bên trái của ô lưới để vẽ
             coordinate_to_pixel(x, y, pixel_x, pixel_y);
 
-            if (map_data.map_cells[x][y] == 1) {
+            if (map_data.map_cells[x][y] == 1)
+            {
                 // Draw passable grid
                 tft.drawRect(pixel_x, pixel_y - 20, 21, 21, MAP_GRID_COLOR);
-            } 
+            }
             // else {
             //     // Draw unpassable grid
             //     tft.drawLine(pixel_x, pixel_y - 10, pixel_x + 10, pixel_y - 20, NOT_MAP_GRID_COLOR);
@@ -258,12 +264,14 @@ void lcd_display_fire(Adafruit_ILI9341 &tft, Fire_data &fire_data)
                 int pixel_x, pixel_y;
                 coordinate_to_pixel(x, y, pixel_x, pixel_y);
                 tft.fillRect(pixel_x + 1, pixel_y - 19, 18, 18, BACKGROUND_COLOR);
-            }else{
+            }
+            else
+            {
 
                 int pixel_x, pixel_y;
                 coordinate_to_pixel(x, y, pixel_x, pixel_y);
                 tft.drawBitmap(pixel_x + 2, pixel_y - 18, fire_bitmap, 16, 16, fire_color[fire_data.fire_map[x][y]]);
-                //tft.fillRect(pixel_x + 2, pixel_y - 18, 16, 16, fire_color[fire_data.fire_map[x][y]]);
+                // tft.fillRect(pixel_x + 2, pixel_y - 18, 16, 16, fire_color[fire_data.fire_map[x][y]]);
             }
         }
     }
@@ -274,17 +282,19 @@ void lcd_clear_user(Adafruit_ILI9341 &tft, Map_data &map_data, IMU_Data &imu_dat
     int cx, cy;
     coordinate_to_pixel(user_data.last_user_x, user_data.last_user_y, cx, cy);
 
-    if (user_data.prev_vision_range > 0) {
-        const int num_segments = 6; 
+    if (user_data.prev_vision_range > 0)
+    {
+        const int num_segments = 6;
         float total_view_angle_rad = user_data.prev_view_cone_angle * (PI / 180.0f);
         float angle_step = total_view_angle_rad / num_segments;
-        
+
         float start_angle = user_data.prev_yaw_angle - (total_view_angle_rad / 2.0f);
 
         int prev_x = cx + round(user_data.prev_vision_range * sin(start_angle));
         int prev_y = cy - round(user_data.prev_vision_range * cos(start_angle));
 
-        for (int i = 1; i <= num_segments; i++) {
+        for (int i = 1; i <= num_segments; i++)
+        {
             float current_angle = start_angle + (i * angle_step);
             int next_x = cx + round(user_data.prev_vision_range * sin(current_angle));
             int next_y = cy - round(user_data.prev_vision_range * cos(current_angle));
@@ -303,25 +313,29 @@ void lcd_clear_user(Adafruit_ILI9341 &tft, Map_data &map_data, IMU_Data &imu_dat
 void lcd_display_user(Adafruit_ILI9341 &tft, Map_data &map_data, User_data &user_data, IMU_Data &imu_data, Valve_Data &valve_data)
 {
     user_data.curr_yaw_angle = (imu_data.euler.z - map_data.north_offset) * (PI / 180.0f);
-    
+
     int cx, cy;
-    coordinate_to_pixel(user_data.user_x, user_data.user_y, cx, cy);    
-    
+    coordinate_to_pixel(user_data.user_x, user_data.user_y, cx, cy);
+
     // Calculate user vison_range based on valve_open_status and mode_status
-    if (valve_data.mode_status < 50) {
+    if (valve_data.mode_status < 50)
+    {
         // Jet Mode
         user_data.curr_view_cone_angle = 20.0f;
         // 2.5 grid * 20 pixel/grid = 50 pixel (max). Cal vison_range based on %valve_open_status
-        user_data.curr_vision_range = (50.0f * valve_data.valve_open_status) / 100.0f; 
-    } else {
+        user_data.curr_vision_range = (50.0f * valve_data.valve_open_status) / 100.0f;
+    }
+    else
+    {
         // Spray Mode
         user_data.curr_view_cone_angle = 60.0f;
         // 1.5 grid * 20 pixel/grid = 30 pixel (max). Cal vison_range based on %valve_open_status
-        user_data.curr_vision_range = (30.0f * valve_data.valve_open_status) / 100.0f; 
+        user_data.curr_vision_range = (30.0f * valve_data.valve_open_status) / 100.0f;
     }
 
-    if (user_data.curr_vision_range > 0) {
-        const int num_segments = 6; 
+    if (user_data.curr_vision_range > 0)
+    {
+        const int num_segments = 6;
         float total_view_angle_rad = user_data.curr_view_cone_angle * (PI / 180.0f);
         float angle_step = total_view_angle_rad / num_segments;
         float start_angle = user_data.curr_yaw_angle - (total_view_angle_rad / 2.0f);
@@ -330,10 +344,10 @@ void lcd_display_user(Adafruit_ILI9341 &tft, Map_data &map_data, User_data &user
         int prev_y = cy - round(user_data.curr_vision_range * cos(start_angle));
 
         // Draw num_segments triangle
-        for (int i = 1; i <= num_segments; i++) 
+        for (int i = 1; i <= num_segments; i++)
         {
             float current_angle = start_angle + (i * angle_step);
-            
+
             int next_x = cx + round(user_data.curr_vision_range * sin(current_angle));
             int next_y = cy - round(user_data.curr_vision_range * cos(current_angle));
 
@@ -345,7 +359,7 @@ void lcd_display_user(Adafruit_ILI9341 &tft, Map_data &map_data, User_data &user
     }
     // Draw user
     tft.fillCircle(cx, cy, 5, BLUE);
-    
+
     // Save previous position and heading state
     user_data.last_user_x = user_data.user_x;
     user_data.last_user_y = user_data.user_y;
@@ -364,15 +378,15 @@ void display_progress_bar(Adafruit_ILI9341 &tft, int x, int y, int width, int he
     uint16_t color;
     if (percentage <= 33)
     {
-        color = RED; // Đỏ
+        color = RED;
     }
     else if (percentage <= 66)
     {
-        color = YELLOW; // Vàng
+        color = YELLOW;
     }
     else
     {
-        color = GREEN; // Xanh lá
+        color = GREEN;
     }
     //
     int filled_width = round((percentage * width) / 100);
@@ -390,7 +404,7 @@ void lcd_display_status_data(Adafruit_ILI9341 &tft, User_data &user_data, Valve_
 
     // X(220->319), Y(35->70)
     tft.fillRect(221, 36, 97, 33, BLACK);
-    tft.setTextSize(3); 
+    tft.setTextSize(3);
     tft.setTextColor(WHITE);
 
     // Font size 3, each character 18px
@@ -404,7 +418,7 @@ void lcd_display_status_data(Adafruit_ILI9341 &tft, User_data &user_data, Valve_
 }
 
 void lcd_display_reality_mode(Adafruit_ILI9341 &tft, IMU_Data &imu_data, Map_data &map_data, User_data &user_data,
-                             Fire_data &fire_data, Valve_Data &valve_data)
+                              Fire_data &fire_data, Valve_Data &valve_data)
 {
     lcd_clear_user(tft, map_data, imu_data, valve_data);
     lcd_setup_map_outline(tft);
@@ -415,17 +429,13 @@ void lcd_display_reality_mode(Adafruit_ILI9341 &tft, IMU_Data &imu_data, Map_dat
         map_updated = false;
         lcd_clear_map(tft);
         lcd_display_map(tft, map_data);
-    }else{
+    }
+    else
+    {
         lcd_display_map(tft, map_data);
     }
-    // if(fire_updated)
-    // {
-    //     Serial.printf("Fire updated!\n");
-    //     fire_updated = false;
-    //     lcd_clear_fire(tft, fire_data);
-    //     lcd_display_fire(tft, fire_data);
-    // }else{
+
     lcd_display_fire(tft, fire_data);
-    
+
     lcd_display_user(tft, map_data, user_data, imu_data, valve_data);
 }

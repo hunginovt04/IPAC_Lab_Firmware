@@ -1,10 +1,10 @@
 #include "apps/app_mode.h"
 
-int last_data_sent[8] = {-100, -100, -100, -100, -100, -100, -100, -100}; 
+int last_data_sent[8] = {-100, -100, -100, -100, -100, -100, -100, -100};
 
-String training_topic = MQTT_TRAINING_TOPIC;//+ String(DEVICE_ID);
-String real_topic = MQTT_REALITY_TOPIC;//+ String(DEVICE_ID);
-String device_infor_topic = MQTT_DEVICE_INFOR_TOPIC; 
+String training_topic = MQTT_TRAINING_TOPIC; //+ String(DEVICE_ID);
+String real_topic = MQTT_REALITY_TOPIC;      //+ String(DEVICE_ID);
+String device_infor_topic = MQTT_DEVICE_INFOR_TOPIC;
 int device_id = DEVICE_ID;
 
 // Get mode of system based on button states
@@ -47,7 +47,6 @@ void run_default_mode(Adafruit_ILI9341 &tft, RSSI_Data *wifi_rssi_data,
     {
         publish_message(device_infor_topic, message);
     }
-    
 }
 
 unsigned long last_display_time = 0;
@@ -60,20 +59,12 @@ void run_training_mode(Adafruit_ILI9341 &tft, RSSI_Data *wifi_rssi_data,
         lcd_training_mode_outline(tft);
     }
     get_training_msg(wifi_rssi_data, ble_rssi_data, imu_data, message);
-    
+
     if (is_ready_to_publish())
     {
         publish_message(training_topic, message);
-        // for (int i = 0; i < 4; i++)
-        // {
-        //     last_data_sent[i] = wifi_rssi_data[i].rssi; // Reset the last sent data
-        // }
-        // for (int i = 4; i < 8; i++)
-        // {
-        //     last_data_sent[i] = ble_rssi_data[i - 4].rssi; // Reset the last sent data
-        // }
     }
-    if(millis() - last_display_time >= 100) // Update display every 1 second
+    if (millis() - last_display_time >= 100) // Update display every 1 second
     {
         last_display_time = millis();
         lcd_display_training_mode(tft, wifi_rssi_data, ble_rssi_data, imu_data);
@@ -89,14 +80,12 @@ void run_reality_mode(Adafruit_ILI9341 &tft, RSSI_Data *wifi_rssi_data,
     {
         change_mode = false;
         lcd_reality_mode_outline(tft);
-    }   
+    }
     get_real_msg(wifi_rssi_data, ble_rssi_data, imu_data, valve_data, message);
 
     if (is_ready_to_publish())
     {
         publish_message(real_topic, message);
     }
-    //tft_main_loop_handler(tft, user, flames, exercise_map, imu_data, valve_data);
     lcd_display_reality_mode(tft, imu_data, map_data, user_data, fire_data, valve_data);
 }
-

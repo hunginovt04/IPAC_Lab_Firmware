@@ -1,38 +1,40 @@
-#include<Arduino.h>
+#include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEAdvertising.h>
 #include "esp_bt.h"
 
 BLEAdvertising *pAdvertising;
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
-  // Set cong suat phat max +9dbm
+  // Set max power to +9dbm
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
 
-  // Khoi tao BLE
+  // Initialize BLE
   BLEDevice::init("ESP32_RSSI_BEACON_1");
 
-  // Tao advertising
+  // Create advertising
   pAdvertising = BLEDevice::getAdvertising();
 
   BLEAdvertisementData advData;
-  advData.setName("BEACON_1");   // Ten de nhan dien
+  advData.setName("BEACON_1"); // Name for identification
 
-  // Co the them du lieu tuy y, hoac de trong
+  // Can add custom data or leave empty
   advData.setManufacturerData("ID_01");
 
   pAdvertising->setAdvertisementData(advData);
 
-  // Tang toc do phat (quan trong)
+  // Increase transmission speed (important for beacons)
   pAdvertising->setMinInterval(0x20);
   pAdvertising->setMaxInterval(0x20);
 
   pAdvertising->start();
 
-  Serial.println("Dang phat BLE...");
+  Serial.println("Starting BLE advertising...");
 }
 
-void loop() {
+void loop()
+{
 }

@@ -4,7 +4,7 @@ Map_data map_data;
 Fire_data fire_data;
 User_data user_data;
 
-bool map_updated = false;   
+bool map_updated = false;
 bool fire_updated = false;
 bool user_updated = false;
 
@@ -87,4 +87,3 @@ void handle_user_data_topic(const char *payload)
     user_data.user_score = doc["score"];
     user_updated = true;
 }
-

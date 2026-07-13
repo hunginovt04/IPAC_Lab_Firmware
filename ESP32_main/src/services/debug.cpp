@@ -69,14 +69,15 @@ void print_topic_and_message(String *message, ModeSystem *mode_of_system)
     Serial.println(*message);
 }
 
-void debug_print(RSSI_Data *wifi_rssi_data, RSSI_Data *ble_rssi_data, IMU_Data *imu_data, String *message, ModeSystem *mode_of_system){
+void debug_print(RSSI_Data *wifi_rssi_data, RSSI_Data *ble_rssi_data, IMU_Data *imu_data, String *message, ModeSystem *mode_of_system)
+{
     unsigned long currentMillis = millis();
     if (currentMillis - last_debug_time >= DEBUG_INTERVAL)
     {
         last_debug_time = currentMillis;
-        //Serial.println(*message);
-        // print_RSSI_data(wifi_rssi_data, ble_rssi_data);
+        // Serial.println(*message);
+        //  print_RSSI_data(wifi_rssi_data, ble_rssi_data);
         print_IMU_data(imu_data);
-        //print_topic_and_message(message, mode_of_system);
+        // print_topic_and_message(message, mode_of_system);
     }
 }

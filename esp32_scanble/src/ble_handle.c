@@ -1,27 +1,13 @@
 #include "ble_handle.h"
 
-// Dia chi Mac 4 beacon
-//d4:e9:f4:f9:57:46
-//a4:f0:0f:64:b7:92
-//b0:cb:d8:c8:29:7a
-//b0:cb:d8:c8:3e:06
-
-// C8:2E:18:67:7E:DA    Number 1
-// 80:F3:DA:AD:7A:7E    Number 2
-// 80:F3:DA:62:07:16    Number 3
-// 80:F3:DA:62:C9:4A    Number 4
-
 static const uint8_t BLE_TARGET_BEACON[4][6] = {
-    {0xD4, 0xE9, 0xF4, 0xF9, 0x57, 0x46},
+    {0xB0, 0xCB, 0xD8, 0xC8, 0x52, 0x4E},
     {0xA4, 0xF0, 0x0F, 0x64, 0xB7, 0x92},
     {0xB0, 0xCB, 0xD8, 0xC8, 0x29, 0x7A},
     {0xB0, 0xCB, 0xD8, 0xC8, 0x3E, 0x06},
 };
 
-// Bien dem so luong RSSI Scan duoc
-int rssi_1s_count = 0;
-
-// Ham init uart
+// Initialize UART
 void uart_init(void)
 {
     uart_config_t uart_config = {
@@ -42,7 +28,7 @@ void uart_init(void)
     uart_driver_install(UART_PORT, 1024, 1024, 0, NULL, 0);
 }
 
-/* Tham so khoi tao (passive scan) */
+// Initialize BLE
 esp_ble_scan_params_t ble_scan_params = {
     .scan_type = BLE_SCAN_TYPE_PASSIVE,
     .own_addr_type = BLE_ADDR_TYPE_PUBLIC,
@@ -57,7 +43,7 @@ void ble_ibeacon_appRegister()
 
     ESP_LOGI("BLE SCAN", "register callback");
 
-    // register the scan callback function to the gap module
+    // Register the scan callback function to the gap module
     if ((status = esp_ble_gap_register_callback(ble_rssi_scan_callback)) != ESP_OK)
     {
         ESP_LOGE("BLE SCAN", "gap register error, error code = %x", status);
@@ -65,7 +51,7 @@ void ble_ibeacon_appRegister()
     }
 }
 
-// Ham init BLE
+// Init function for BLE
 void ble_init(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -84,7 +70,7 @@ void ble_init(void)
     esp_bluedroid_init();
     esp_bluedroid_enable();
 
-    // Đăng ký callback
+    // Register the BLE iBeacon application
     ble_ibeacon_appRegister();
 
     esp_ble_gap_set_scan_params(&ble_scan_params);
@@ -117,15 +103,12 @@ void ble_rssi_scan_callback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t
             {
                 if (memcmp(addr, BLE_TARGET_BEACON[i], 6) == 0)
                 {
-                    rssi_1s_count++;
                     char buffer[50];
                     sprintf(buffer, "%d %d\n", i + 1, rssi);
-                    // printf(buffer);
 
-                    // Gui uart
+                    // Send the data to UART
                     uart_write_bytes(UART_PORT, buffer, strlen(buffer));
-                    //printf("%d %d\n",i+1,rssi);
-                }
+                    }
             }
         }
         break;

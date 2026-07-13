@@ -4,7 +4,7 @@
 #define RXD2 16
 #define TXD2 17
 
-// Channel be scaned (Tat ca router da duoc config channel 2)
+// Channel be scaned 
 #define CHANNEL 6
 
 // SSID of target access point
@@ -15,7 +15,7 @@ const char *target_mac[4] = {
     "F4:83:CD:77:40:80",
     "34:96:72:EA:28:F0",
     "E8:48:B8:95:4D:4F"
-  };
+};
 // ID of target access point
 const int id[4] = {1, 2, 3, 4};
 
@@ -31,6 +31,7 @@ int rssi_count = 0;
 //     return id[i - 1];
 //   return 0;
 // }
+
 // Check MAC function
 int check_mac(char *mac, int i)
 {
@@ -43,7 +44,6 @@ void send_data(int id, int rssi)
 {
   char buffer[50];
   sprintf(buffer, "%d %d\n", id, rssi);
-  //Serial.print(buffer);
   Serial2.println(buffer);
 }
 
@@ -55,7 +55,7 @@ void setup()
   WiFi.disconnect();
   delay(100);
 
-  Serial.println("Bat dau quet WiFi...");
+  Serial.println("Start scanning WiFi...");
 }
 
 void loop()
@@ -77,12 +77,4 @@ void loop()
       }
     }
   }
-
-  // Ham in ra so luong RSSI scan duoc moi 1s
-  // if (millis() - lasttime > 1000)
-  // {
-  //   Serial.printf("So luong RSSI trong 1s: %d\n", rssi_count);
-  //   rssi_count = 0;
-  //   lasttime = millis();
-  // }
 }

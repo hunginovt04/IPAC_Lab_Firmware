@@ -13,9 +13,6 @@
 #include <Adafruit_ILI9341.h>
 #include <ArduinoJson.h>
 
-// #include "apps/app_setup.h"
-// #include "apps/app_loop.h"
-
 // Device ID and mode of system
 /*#############################################################################################################*/
 
@@ -186,12 +183,12 @@ const uint8_t DEMO_QR[QR_SIZE][QR_SIZE] = {
 /*#############################################################################################################*/
 
 // WiFi Settings
-#define WIFI_SSID "TP-Link_C6B0"
-#define WIFI_PASSWORD "70803532"
+#define WIFI_SSID "RSSI1"
+#define WIFI_PASSWORD "11111111"
 #define WIFI_TIMEOUT 10000 // Connection timeout (ms)
 
 // MQTT Broker Settings
-#define MQTT_BROKER "192.168.0.103"
+#define MQTT_BROKER "192.168.0.102"
 #define MQTT_PORT 1883 // Default MQTT port
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
@@ -199,7 +196,7 @@ const uint8_t DEMO_QR[QR_SIZE][QR_SIZE] = {
 
 // MQTT Topics
 #define MQTT_DEVICE_INFOR_TOPIC "device_info"
-#define MQTT_TRAINING_TOPIC "training_id/14" 
+#define MQTT_TRAINING_TOPIC "training_id/14"
 #define MQTT_REALITY_TOPIC "reality_id/14"
 
 // Message Publishing Configuration
@@ -299,30 +296,17 @@ struct IMU_Data
 // LCD algorithms variables define
 /*#############################################################################################################*/
 
-// ID Các ô đi được trong bản đồ (được gửi về từ trainer)
-extern vector<int> passable_map_id;
-extern vector<int> not_passable_map_id;
-
 // Tọa độ xử lý map_grid
 struct int_Coordinate
 {
     int x, y;
 };
 
-// Tọa độ các ô đi được/không đi được trong map
-// extern vector<Coordinate> map_grid;
-// extern vector<Coordinate> not_map_grid;
-// extern vector<Coordinate> last_map_grid;
-// extern vector<Coordinate> last_not_map_grid;
-// extern bool map_updated;
-
-typedef struct Valve_Data 
+typedef struct Valve_Data
 {
-    int valve_open_status;  // 0-100%
+    int valve_open_status; // 0-100%
     int mode_status;       // 0-100%
-}Valve_Data;
-
-
+} Valve_Data;
 
 typedef struct Map_data
 {
@@ -330,10 +314,8 @@ typedef struct Map_data
     int height;
     int map_cells[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
     int north_offset;
-}Map_data;
-//extern bool map_updated;
+} Map_data;
 
-// Vị trí người dùng
 typedef struct User_data
 {
     float last_user_x;
@@ -341,19 +323,18 @@ typedef struct User_data
     float user_x;
     float user_y;
     int user_score;
-    float curr_yaw_angle;                   // User current yaw angle
-    float prev_yaw_angle;                   // User previous yaw angle
+    float curr_yaw_angle; // User current yaw angle
+    float prev_yaw_angle; // User previous yaw angle
     // User vision range (Fire's impact range)
     float curr_vision_range;
     float prev_vision_range;
 
-    // User's POV (Fire's impact angle)  
+    // User's POV (Fire's impact angle)
     float curr_view_cone_angle;
     float prev_view_cone_angle;
 } User_data;
 extern bool user_updated;
 
-// Ngọn lửa
 typedef struct Fire_data
 {
     int fire_map[MAP_WIDTH_MAX][MAP_HEIGHT_MAX];
@@ -361,7 +342,7 @@ typedef struct Fire_data
 } Fire_data;
 extern bool fire_updated;
 
-// Màu hiển thị ngọn lửa theo mức lvl
+// Color for fire level
 const uint16_t fire_color[6] = {
     BLACK,  // lv0
     0xF800, // lv1
@@ -371,12 +352,12 @@ const uint16_t fire_color[6] = {
     0xA804  // lv5
 };
 
-#define BACKGROUND_COLOR        0x0000      // Black
-#define USER_DOT_COLOR          0x001F      // Blue
-#define USER_VIEW_CONE_COLOR    0x07E0      // Green
-#define MAP_GRID_COLOR          0xFFFF      // White
-#define NOT_MAP_GRID_COLOR      0x001F      // Blue
-#define STATIC_TEXT_COLOR       0xFFFF      // White
+#define BACKGROUND_COLOR 0x0000     // Black
+#define USER_DOT_COLOR 0x001F       // Blue
+#define USER_VIEW_CONE_COLOR 0x07E0 // Green
+#define MAP_GRID_COLOR 0xFFFF       // White
+#define NOT_MAP_GRID_COLOR 0x001F   // Blue
+#define STATIC_TEXT_COLOR 0xFFFF    // White
 /*#############################################################################################################*/
 
 #endif
